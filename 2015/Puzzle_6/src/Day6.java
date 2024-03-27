@@ -20,8 +20,6 @@ public class Day6 {
         bReader.close();
         file.close();
 
-        System.out.println(toggle);
-
         // Getting coordinates
         ArrayList<Integer> coor = new ArrayList<>();
         for (String str:input) {
@@ -33,7 +31,7 @@ public class Day6 {
         // Follow instructions
         boolean[][] grid = new boolean[1000][1000];
         int[][] grid2 = new int[1000][1000];
-        for(int t = 0; t < 3; t++) {
+        for(int t = 0; t < toggle.size(); t++) {
             instructions1(grid, coor.get(t*4), coor.get(t*4 + 1), coor.get(t*4 + 2), coor.get(t*4 + 3), toggle.get(t));
             instructions2(grid2, coor.get(t*4), coor.get(t*4 + 1), coor.get(t*4 + 2), coor.get(t*4 + 3), toggle.get(t));
         }
