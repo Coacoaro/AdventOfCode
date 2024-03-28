@@ -58,12 +58,6 @@ public class Day7 {
                 }
             }
         }
-        int x = 123;
-        int y = 456;
-        System.out.println(AND(x, y));
-        System.out.println(OR(x, y));
-        System.out.println(NOT(x));
-        System.out.println(NOT(y));
     }
 
     // Assign signals to wires
@@ -130,9 +124,15 @@ public class Day7 {
     static Integer NOT(Integer x) {
       return ~x + 65536;
     }
-//    static Integer LSHIFT(Integer x, Integer y) {
-//    }
-//
-//    static Integer RSHIFT(Integer x, Integer y) {
-//    }
+    static Integer RSHIFT(Integer x, int shift) {
+        return x >> shift;
+    }
+    static Integer LSHIFT(Integer x, int shift) {
+        int newInt = x << shift;
+        if (newInt > 65535) {
+            int factor = newInt/65536;
+            newInt -= factor*65536;
+        }
+        return newInt;
+    }
 }
