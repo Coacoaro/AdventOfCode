@@ -20,10 +20,21 @@ public class Day7 {
         bReader.close();
         file.close();
 
+        // Part 1
         while (wires.containsValue(null)) {
             provideSignal(wires, instruction);
         }
-        System.out.println("a");
+        int a = wires.get("a");
+        System.out.println(a);
+
+        // Part 2
+        // Easy way (and way faster!): change the signal of b to the signal of a manually in the input.txt file and run the code again
+        wires.replaceAll((wire, signal) -> signal = (wire.equals("b")) ? a : null);
+        while (wires.containsValue(null)) {
+            provideSignal(wires, instruction);
+        }
+        int a2 = wires.get("a");
+        System.out.println(a2);
     }
 
     static void provideSignal(HashMap<String, Integer> wires, HashMap<String[], String> instruction) {
