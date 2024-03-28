@@ -23,7 +23,7 @@ public class Day7 {
         while (wires.containsValue(null)) {
             provideSignal(wires, instruction);
         }
-        System.out.println(wires);
+        System.out.println("a");
     }
 
     static void provideSignal(HashMap<String, Integer> wires, HashMap<String[], String> instruction) {
