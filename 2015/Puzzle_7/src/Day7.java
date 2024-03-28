@@ -14,123 +14,125 @@ public class Day7 {
         while ((currentLine = bReader.readLine()) != null) {
             String[] splitLine = currentLine.split(" -> ");
             instruction.put(splitLine[0].split(" "), splitLine[1]);
-            initWires(wires, currentLine);
+            wires.put(splitLine[1], null);
+
         }
         bReader.close();
         file.close();
 
-        // Operation
-//        HashSet<String> operations = new HashSet<>();
-//        instruction.forEach((dog, key) -> {
-//            if (dog.length != 1)
-//                operations.add(dog[dog.length-2]);
-////            else
-////                operations.add(dog[0]);
-//        } );
+        while (wires.containsValue(null)) {
+            provideSignal(wires, instruction);
+        }
+        System.out.println(wires);
+    }
 
-//        for (Map.Entry<String, Integer> entry : wire.entrySet()) {
-//            if (entry.getValue() != null) {
-//                System.out.println(entry.getKey());
-//            }
-//            if (Objects.equals(entry.getKey(), "a")) {
-//                System.out.println(entry);
-//            }
-//        };
-
+    static void provideSignal(HashMap<String, Integer> wires, HashMap<String[], String> instruction) {
         for (Map.Entry<String, Integer> entryW : wires.entrySet()) {
+            // wires.forEach((wire, signal) -> {...
             String wire = entryW.getKey();
             Integer signal = entryW.getValue();
 
-            if (signal != null) {
-//                System.out.println(entryW);
+            // Skips signals we already have
+            if (signal != null)
                 continue;
-            }
 
             for (Map.Entry<String[], String> entryI : instruction.entrySet()) {
-                // instruction.forEach((logic, wire) -> {...
-                String[] logic = entryI.getKey();
-                String assWire = entryI.getValue();
-
                 // Gets operation for wire in wires
-                if (Objects.equals(entryW.getKey(), assWire)) {
-//                    operate(entryW, logic, assWire);
+                if (Objects.equals(wire, entryI.getValue())) {
+                    Integer newSignal = operate(entryI, entryW, wires);
+                    if (newSignal != null)
+                        wires.replace(wire, newSignal);
                     break;
                 }
             }
         }
     }
 
-    // Assign signals to wires
-    static void initWires(HashMap<String, Integer> wire, String line) {
-        String[] split = line.split(" -> ");
+    // Handle operations
+    static Integer operate(Map.Entry<String[], String> entryI, Map.Entry<String, Integer> entryW, HashMap<String, Integer> wires) {
+        String w1 = entryI.getKey()[entryI.getKey().length - 1];
+        Integer s1;
+        Integer signal = null;
+
+        if (StringIsNum(w1))
+            s1 = Integer.parseInt(w1);
+        else
+            s1 = wires.get(w1);
+
+        if (s1 != null) {
+            switch (entryI.getKey().length) {
+                case 1:
+                    signal = s1;
+                    break;
+                case 2:
+                    signal = NOT(s1);
+                    break;
+                case 3:
+                    String w2 = entryI.getKey()[0];
+                    String operation = entryI.getKey()[1];
+                    Integer s2;
+
+                    if (StringIsNum(w2))
+                        s2 = Integer.parseInt(w2);
+                    else
+                        s2 = wires.get(w2);
+
+                    if (s2 != null)
+                        signal = Case3(s2, s1, operation);
+            }
+        }
+        return signal;
+    }
+
+    // Check if string is a number
+    static boolean StringIsNum(String str) {
         boolean isDigit = true;
 
         // Check if signal is a number
-        for (char c:split[0].toCharArray()) {
+        for (char c:str.toCharArray()) {
             if (!Character.isDigit(c)) {
                 isDigit = false;
                 break;
             }
         }
-
-        // Assign values to wire
-        if (isDigit){
-            wire.put(split[1], Integer.parseInt(split[0]));
-        } else
-            wire.put(split[1], null);
+        return isDigit;
     }
 
-    // Handle operations
-    static void operate(Map.Entry<String, Integer> entryW, String[] logic, String assWire) {
-        String w1 = logic[0];
-        String w2;
-        String operation;
-
-        switch (logic.length) {
-            case 1:
-                System.out.println(w1 + " -> " + assWire);
+    static int Case3(int s1, int s2, String operator) {
+        int signal = 0;
+        switch (operator) {
+            case "OR":
+                signal = OR(s1, s2);
                 break;
-            case 2:
-                w1 = logic[1];
-                System.out.println("~" + w1 + " -> " + assWire);
+            case "AND":
+                signal = AND(s1, s2);
                 break;
-            case 3:
-                operation = logic[logic.length - 2];
-                w2 = logic[2];
-                switch (operation) {
-                    case "OR":
-                        System.out.println(w1 + "|" + w2 + " -> " + assWire);
-                        break;
-                    case "AND":
-                        System.out.println(w1 + "&" + w2 + " -> " + assWire);
-                        break;
-                    case "LSHIFT":
-                        System.out.println(w1 + "<<" + w2 + " -> " + assWire);
-                        break;
-                    case "RSHIFT":
-                        System.out.println(w1 + ">>" + w2 + " -> " + assWire);
-                        break;
-            }
+            case "LSHIFT":
+                signal = LSHIFT(s1, s2);
+                break;
+            case "RSHIFT":
+                signal = RSHIFT(s1, s2);
         }
+        return signal;
     }
 
     // Operations
-    static Integer AND(Integer x, Integer y) {
+    static int AND(int x, int y) {
         return x & y;
     }
-    static Integer OR(Integer x, Integer y) {
+    static int OR(int x, int y) {
         return x | y;
     }
-    static Integer NOT(Integer x) {
+    static int NOT(int x) {
       return ~x + 65536;
     }
-    static Integer RSHIFT(Integer x, int shift) {
+    static int RSHIFT(int x, int shift) {
         return x >> shift;
     }
-    static Integer LSHIFT(Integer x, int shift) {
+    static int LSHIFT(int x, int shift) {
         int newInt = x << shift;
         if (newInt > 65535) {
-            int factor = newInt/65536;
+            int factor = newInt>>16;
             newInt -= factor*65536;
         }
         return newInt;
