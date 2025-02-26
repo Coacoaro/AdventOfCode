@@ -41,7 +41,7 @@ public class Day9 {
                 large = l;
         }
         System.out.println("min val. = "+small);
-        System.out.println("min val. = "+large);
+        System.out.println("max val. = "+large);
     }
 
 
